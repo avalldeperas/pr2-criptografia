@@ -26,10 +26,43 @@ def uoc_lfsr_sequence(polynomial, initial_state, output_bits):
     result = None
 
     # --- IMPLEMENTATION GOES HERE ---
+    # XOR in python: 0 ^ 1 = 1
+    result = []
+    initial_state.reverse()
+    polynomial.reverse()
+    lfsr_array = initial_state.copy()
+    result.append(lfsr_array[-1])
+    for i in range(output_bits):
+        # 1. move one to the right
+        first_element = calculate_first_element(polynomial, lfsr_array)
+        lfsr_array = [lfsr_array[-1]] + lfsr_array[:-1]
+        lfsr_array.insert(0, first_element)
+        result.append(lfsr_array[-1])
 
-
-
+    print(f'{result}')
     # --------------------------------
+
+    return result
+
+
+def calculate_first_element(polynomial, lfsr_array):
+    result = 0
+
+    c_polynomial = polynomial.copy()
+    c_lfsr = lfsr_array.copy()
+    c_polynomial.reverse()
+    c_lfsr.reverse()
+
+    operands = []
+    for i in range(len(c_polynomial)):
+        if c_polynomial[i] == 1:
+            operands.append(c_lfsr[i])
+
+    for i in range(len(operands)):
+        if i == 0:
+            result = operands[i] ^ 0
+        else:
+            result ^= operands[i]
 
     return result
 

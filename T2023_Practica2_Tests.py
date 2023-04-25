@@ -12,7 +12,7 @@ class TestGenKey(unittest.TestCase):
     def test_basic_genkey_1(self):
         result = uoc_lfsr_sequence([1, 1, 0, 0], [1, 0, 0, 0], 20)
         exp_resu1t = [1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1]
-        self.assertEqual(result, exp_resu1t)
+        self.assertEqual(exp_resu1t, result)
 
     def test_basic_genkey_2(self):
         result = uoc_lfsr_sequence([1, 0, 1, 1, 0, 0], [0, 0, 0, 1, 0, 0], 20)
