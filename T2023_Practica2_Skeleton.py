@@ -43,17 +43,14 @@ def uoc_lfsr_sequence(polynomial, initial_state, output_bits):
 
 def calculate_first_element(polynomial, lfsr_array):
     result = 0
-
     operands = []
+
     for i in range(len(polynomial)):
         if polynomial[i] == 1:
             operands.append(lfsr_array[i])
 
     for i in range(len(operands)):
-        if i == 0:
-            result = operands[i] ^ 0
-        else:
-            result ^= operands[i]
+        result ^= operands[i]
 
     return result
 
