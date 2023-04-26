@@ -6,9 +6,9 @@ from Crypto.Cipher import AES
 MODE_CIPHER = 0
 MODE_DECIPHER = 1
 
+
 # --- IMPLEMENTATION GOES HERE ---------------------------------------------
 #  Student helpers (functions, constants, etc.) can be defined here, if needed
-
 
 
 # --------------------------------------------------------------------------
@@ -31,15 +31,11 @@ def uoc_lfsr_sequence(polynomial, initial_state, output_bits):
     initial_state.reverse()
     polynomial.reverse()
     lfsr_array = initial_state.copy()
-    result.append(lfsr_array[-1])
     for i in range(output_bits):
-        # 1. move one to the right
-        first_element = calculate_first_element(polynomial, lfsr_array)
-        lfsr_array = [lfsr_array[-1]] + lfsr_array[:-1]
-        lfsr_array.insert(0, first_element)
         result.append(lfsr_array[-1])
-
-    print(f'{result}')
+        first_element = calculate_first_element(polynomial, lfsr_array)
+        lfsr_array.pop()
+        lfsr_array.insert(0, first_element)
     # --------------------------------
 
     return result
@@ -48,15 +44,10 @@ def uoc_lfsr_sequence(polynomial, initial_state, output_bits):
 def calculate_first_element(polynomial, lfsr_array):
     result = 0
 
-    c_polynomial = polynomial.copy()
-    c_lfsr = lfsr_array.copy()
-    c_polynomial.reverse()
-    c_lfsr.reverse()
-
     operands = []
-    for i in range(len(c_polynomial)):
-        if c_polynomial[i] == 1:
-            operands.append(c_lfsr[i])
+    for i in range(len(polynomial)):
+        if polynomial[i] == 1:
+            operands.append(lfsr_array[i])
 
     for i in range(len(operands)):
         if i == 0:
@@ -85,8 +76,6 @@ def uoc_ext_a5_pseudo_random_gen(params_pol_0, params_pol_1, params_pol_2, clock
 
     # --- IMPLEMENTATION GOES HERE ---
 
-
-
     # --------------------------------
 
     return sequence
@@ -108,8 +97,6 @@ def uoc_a5_cipher(initial_state_0, initial_state_1, initial_state_2, message, mo
 
     # --- IMPLEMENTATION GOES HERE ---
 
-
-
     # --------------------------------
 
     return output
@@ -128,7 +115,6 @@ def uoc_aes(message, key):
 
     # --- IMPLEMENTATION GOES HERE ---
 
-
     # --------------------------------
 
     return cipher_text
@@ -145,7 +131,6 @@ def uoc_g(message):
     output = ""
 
     # --- IMPLEMENTATION GOES HERE ---
-
 
     # --------------------------------
 
@@ -166,8 +151,6 @@ def uoc_naive_padding(message, block_len):
 
     # --- IMPLEMENTATION GOES HERE ---
 
-
-
     # --------------------------------
 
     return output
@@ -185,9 +168,6 @@ def uoc_mmo_hash(message):
 
     # --- IMPLEMENTATION GOES HERE ---
 
-
-
-
     # --------------------------------
 
     return h_i
@@ -204,8 +184,6 @@ def uoc_collision(prefix):
     collision = ("", "")
 
     # --- IMPLEMENTATION GOES HERE ---
-
-
 
     # --------------------------------
 
