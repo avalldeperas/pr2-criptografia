@@ -26,16 +26,15 @@ def uoc_lfsr_sequence(polynomial, initial_state, output_bits):
     result = None
 
     # --- IMPLEMENTATION GOES HERE ---
-    # XOR in python: 0 ^ 1 = 1
     result = []
     initial_state.reverse()
     polynomial.reverse()
-    lfsr_array = initial_state.copy()
+    lfsr = initial_state.copy()
     for i in range(output_bits):
-        result.append(lfsr_array[-1])
-        first_element = calculate_first_element(polynomial, lfsr_array)
-        lfsr_array.pop()
-        lfsr_array.insert(0, first_element)
+        result.append(lfsr[-1])
+        first_element = calculate_first_element(polynomial, lfsr)
+        lfsr.pop()
+        lfsr.insert(0, first_element)
     # --------------------------------
 
     return result
@@ -55,6 +54,15 @@ def calculate_first_element(polynomial, lfsr_array):
     return result
 
 
+def validate_clocking_bits(clocking_bit, *param_pols):
+    for i in range(len(clocking_bit)):
+        current_param = param_pols[i]
+        polynomial = current_param[0]
+        initial_state = current_param[1]
+        if clocking_bit[i] >= len(initial_state) or clocking_bit[i] >= len(polynomial) or clocking_bit[i] < 0:
+            raise Exception(f"Clocking bit provided '{clocking_bit[i]}' is not valid for '{initial_state}'")
+
+
 def uoc_ext_a5_pseudo_random_gen(params_pol_0, params_pol_1, params_pol_2, clocking_bits, output_bits):
     """
     Implements extended A5's pseudorandom generator.
@@ -72,6 +80,7 @@ def uoc_ext_a5_pseudo_random_gen(params_pol_0, params_pol_1, params_pol_2, clock
     sequence = []
 
     # --- IMPLEMENTATION GOES HERE ---
+    validate_clocking_bits(clocking_bits, params_pol_0, params_pol_1, params_pol_2)
 
     # --------------------------------
 

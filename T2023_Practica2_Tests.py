@@ -54,7 +54,7 @@ class TestPseudoRandGen(unittest.TestCase):
         size = 30
         exp_sequence = [1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1]
         result = uoc_ext_a5_pseudo_random_gen(p0, p1, p2, clocking_bits, size)
-        self.assertEqual(result, exp_sequence)
+        self.assertEqual(exp_sequence, result)
 
     def test_pseudorandom_gen_2(self):
         p0 = [[1, 0, 0, 1, 1], [0, 0, 1, 0, 0]]
@@ -64,7 +64,7 @@ class TestPseudoRandGen(unittest.TestCase):
         size = 30
         exp_sequence = [1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1]
         result = uoc_ext_a5_pseudo_random_gen(p0, p1, p2, clocking_bits, size)
-        self.assertEqual(result, exp_sequence)
+        self.assertEqual(exp_sequence, result)
 
     def test_pseudorandom_gen_3(self):
         p0 = [[1, 0, 1, 0, 1], [0, 0, 1, 0, 0]]
@@ -74,7 +74,7 @@ class TestPseudoRandGen(unittest.TestCase):
         size = 30
         exp_sequence = [1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 0, 1, 1]
         result = uoc_ext_a5_pseudo_random_gen(p0, p1, p2, clocking_bits, size)
-        self.assertEqual(result, exp_sequence)
+        self.assertEqual(exp_sequence, result)
 
 
 class TestA5Cipher(unittest.TestCase):
