@@ -9,7 +9,13 @@ MODE_DECIPHER = 1
 
 # --- IMPLEMENTATION GOES HERE ---------------------------------------------
 #  Student helpers (functions, constants, etc.) can be defined here, if needed
+def xor(x, y):
+    return x ^ y
 
+
+def rotate(lfsr, first_element):
+    lfsr.pop()
+    lfsr.insert(0, first_element)
 
 # --------------------------------------------------------------------------
 
@@ -33,23 +39,18 @@ def uoc_lfsr_sequence(polynomial, initial_state, output_bits):
     for i in range(output_bits):
         result.append(lfsr[-1])
         first_element = calculate_first_element(polynomial, lfsr)
-        lfsr.pop()
-        lfsr.insert(0, first_element)
+        rotate(lfsr, first_element)
     # --------------------------------
 
     return result
 
 
-def calculate_first_element(polynomial, lfsr_array):
+def calculate_first_element(polynomial, lfsr):
     result = 0
-    operands = []
 
     for i in range(len(polynomial)):
         if polynomial[i] == 1:
-            operands.append(lfsr_array[i])
-
-    for i in range(len(operands)):
-        result ^= operands[i]
+            result = xor(lfsr[i], result)
 
     return result
 
