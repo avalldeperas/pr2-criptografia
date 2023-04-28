@@ -13,9 +13,20 @@ def xor(x, y):
     return x ^ y
 
 
-def rotate(lfsr, first_element):
+def rotate(lfsr, polynomial):
+    first_element = calculate_first_element(polynomial, lfsr)
     lfsr.pop()
     lfsr.insert(0, first_element)
+
+
+def calculate_first_element(polynomial, lfsr):
+    result = 0
+
+    for i in range(len(polynomial)):
+        if polynomial[i] == 1:
+            result = xor(lfsr[i], result)
+
+    return result
 
 # --------------------------------------------------------------------------
 
@@ -38,19 +49,8 @@ def uoc_lfsr_sequence(polynomial, initial_state, output_bits):
     lfsr = initial_state.copy()
     for i in range(output_bits):
         result.append(lfsr[-1])
-        first_element = calculate_first_element(polynomial, lfsr)
-        rotate(lfsr, first_element)
+        rotate(lfsr, polynomial)
     # --------------------------------
-
-    return result
-
-
-def calculate_first_element(polynomial, lfsr):
-    result = 0
-
-    for i in range(len(polynomial)):
-        if polynomial[i] == 1:
-            result = xor(lfsr[i], result)
 
     return result
 
@@ -89,33 +89,26 @@ def uoc_ext_a5_pseudo_random_gen(params_pol_0, params_pol_1, params_pol_2, clock
     lfsr_1.reverse()
     lfsr_2.reverse()
     lfsr_3.reverse()
-    print('---------------------------------------------------')
     for i in range(output_bits):
         output = xor(xor(lfsr_1[-1], lfsr_2[-1]), lfsr_3[-1])
-        print(f'i={i} - current lfsr: {lfsr_1}, {lfsr_2}, {lfsr_3} - output = {output}')
         sequence.append(output)
         clock_bit_val1 = lfsr_1[clocking_bits[0]]
         clock_bit_val2 = lfsr_2[clocking_bits[1]]
         clock_bit_val3 = lfsr_3[clocking_bits[2]]
 
         if clock_bit_val1 == clock_bit_val2 == clock_bit_val3:
-            # print(f'rotating 1,2,3 - clocks clock1={clock_bit_val1}, clock2={clock_bit_val2}, clock3={clock_bit_val3}')
-            rotate(lfsr_1, output)
-            rotate(lfsr_2, output)
-            rotate(lfsr_3, output)
+            rotate(lfsr_1, params_pol_0[0])
+            rotate(lfsr_2, params_pol_1[0])
+            rotate(lfsr_3, params_pol_2[0])
         if clock_bit_val1 == clock_bit_val2 != clock_bit_val3:
-            # print(f'rotating 1,2 - clocks clock1={clock_bit_val1}, clock2={clock_bit_val2}, clock3={clock_bit_val3}')
-            rotate(lfsr_1, output)
-            rotate(lfsr_2, output)
+            rotate(lfsr_1, params_pol_0[0])
+            rotate(lfsr_2, params_pol_1[0])
         if clock_bit_val1 != clock_bit_val2 == clock_bit_val3:
-            # print(f'rotating 2,3 -  clocks clock1={clock_bit_val1}, clock2={clock_bit_val2}, clock3={clock_bit_val3}')
-            rotate(lfsr_2, output)
-            rotate(lfsr_3, output)
+            rotate(lfsr_2, params_pol_1[0])
+            rotate(lfsr_3, params_pol_2[0])
         if clock_bit_val1 == clock_bit_val3 != clock_bit_val2:
-            # print(f'rotating 1,3 -  clocks clock1={clock_bit_val1}, clock2={clock_bit_val2}, clock3={clock_bit_val3}')
-            rotate(lfsr_1, output)
-            rotate(lfsr_3, output)
-        print('---------------------------------------------------')
+            rotate(lfsr_1, params_pol_0[0])
+            rotate(lfsr_3, params_pol_2[0])
 
     print(sequence)
     # --------------------------------
