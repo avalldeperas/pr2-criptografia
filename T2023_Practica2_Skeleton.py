@@ -33,6 +33,11 @@ def string_to_binary(string: str):
     return "".join([bin(ord(i))[2:].zfill(8) for i in string])
 
 
+def binary_str_to_bytes(string: str):
+    binary_key = int(string, base=2)
+    hex_key = hex(binary_key)[2:]
+
+    return bytes.fromhex(hex_key)
 # --------------------------------------------------------------------------
 
 
@@ -175,17 +180,15 @@ def uoc_aes(message, key):
     cipher_text = ""
 
     # --- IMPLEMENTATION GOES HERE ---
-    binary_key = int(key, 2)
-    hex_key = hex(binary_key)[2:]
-    bytes_hex_key = bytes.fromhex(hex_key)
-
+    bytes_hex_key = binary_str_to_bytes(key)
     cipher = AES.new(bytes_hex_key, AES.MODE_ECB)
-    bytes_hex_cipher = cipher.encrypt(message.encode("utf8"))
+
+    bytes_hex_message = binary_str_to_bytes(message)
+    bytes_hex_cipher = cipher.encrypt(bytes_hex_message)
 
     hex_cipher = bytes_hex_cipher.hex()
     binary = bin(int(hex_cipher, 16))
     cipher_text = binary[2:]
-    print(cipher_text)
     # --------------------------------
 
     return cipher_text
