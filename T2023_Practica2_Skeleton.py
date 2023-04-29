@@ -114,8 +114,6 @@ def uoc_ext_a5_pseudo_random_gen(params_pol_0, params_pol_1, params_pol_2, clock
         if clock_bit_val1 == clock_bit_val3 != clock_bit_val2:
             rotate(lfsr_1, params_pol_0[0])
             rotate(lfsr_3, params_pol_2[0])
-
-    print(sequence)
     # --------------------------------
 
     return sequence
@@ -139,21 +137,19 @@ def uoc_a5_cipher(initial_state_0, initial_state_1, initial_state_2, message, mo
     params_pol_0 = [[1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], initial_state_0]
     params_pol_1 = [[1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], initial_state_1]
     params_pol_2 = [[1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0], initial_state_2]
-    clocking_bits = [9, 11, 11]
-    key = uoc_ext_a5_pseudo_random_gen(params_pol_0, params_pol_1, params_pol_2, clocking_bits, 228)
+    clocking_bits = [8, 10, 10]
 
     if MODE_CIPHER == mode:
-        print('we are going to cipher')
         bin_result = ''.join(format(x, '08b') for x in bytearray(message, 'utf-8'))
-        print(f'{bin_result}')
         message_list = list(map(int, bin_result))
+        key = uoc_ext_a5_pseudo_random_gen(params_pol_0, params_pol_1, params_pol_2, clocking_bits, len(message_list))
         for i in range(len(message_list)):
             result = xor(message_list[i], key[i])
             output += str(result)
 
     elif MODE_DECIPHER == mode:
-        print('we are going to decipher')
         message_list = list(map(int, message))
+        key = uoc_ext_a5_pseudo_random_gen(params_pol_0, params_pol_1, params_pol_2, clocking_bits, len(message_list))
         binary_str_result = ''
         for i in range(len(message_list)):
             result = xor(message_list[i], key[i])
