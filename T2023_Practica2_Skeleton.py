@@ -154,7 +154,17 @@ def uoc_aes(message, key):
     cipher_text = ""
 
     # --- IMPLEMENTATION GOES HERE ---
+    binary_key = int(key, 2)
+    hex_key = hex(binary_key)[2:]
+    bytes_hex_key = bytes.fromhex(hex_key)
 
+    cipher = AES.new(bytes_hex_key, AES.MODE_ECB)
+    bytes_hex_cipher = cipher.encrypt(message.encode("utf8"))
+
+    hex_cipher = bytes_hex_cipher.hex()
+    binary = bin(int(hex_cipher, 16))
+    cipher_text = binary[2:]
+    print(cipher_text)
     # --------------------------------
 
     return cipher_text
