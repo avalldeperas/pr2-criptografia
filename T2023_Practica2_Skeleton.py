@@ -28,6 +28,11 @@ def calculate_first_element(polynomial, lfsr):
 
     return result
 
+
+def string_to_binary(string: str):
+    return "".join([bin(ord(i))[2:].zfill(8) for i in string])
+
+
 # --------------------------------------------------------------------------
 
 
@@ -166,7 +171,7 @@ def uoc_g(message):
     output = ""
 
     # --- IMPLEMENTATION GOES HERE ---
-
+    output = message + message
     # --------------------------------
 
     return output
@@ -185,7 +190,8 @@ def uoc_naive_padding(message, block_len):
     output = ""
 
     # --- IMPLEMENTATION GOES HERE ---
-
+    binary = string_to_binary(message)
+    output = binary.ljust(block_len, '0')
     # --------------------------------
 
     return output
