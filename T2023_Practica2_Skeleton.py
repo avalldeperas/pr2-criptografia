@@ -136,7 +136,32 @@ def uoc_a5_cipher(initial_state_0, initial_state_1, initial_state_2, message, mo
     output = ""
 
     # --- IMPLEMENTATION GOES HERE ---
+    params_pol_0 = [[1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], initial_state_0]
+    params_pol_1 = [[1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], initial_state_1]
+    params_pol_2 = [[1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0], initial_state_2]
+    clocking_bits = [9, 11, 11]
+    key = uoc_ext_a5_pseudo_random_gen(params_pol_0, params_pol_1, params_pol_2, clocking_bits, 228)
 
+    if MODE_CIPHER == mode:
+        print('we are going to cipher')
+        bin_result = ''.join(format(x, '08b') for x in bytearray(message, 'utf-8'))
+        print(f'{bin_result}')
+        message_list = list(map(int, bin_result))
+        for i in range(len(message_list)):
+            result = xor(message_list[i], key[i])
+            output += str(result)
+
+    elif MODE_DECIPHER == mode:
+        print('we are going to decipher')
+        message_list = list(map(int, message))
+        binary_str_result = ''
+        for i in range(len(message_list)):
+            result = xor(message_list[i], key[i])
+            binary_str_result += str(result)
+
+        my_int = int(binary_str_result, base=2)
+        my_str = my_int.to_bytes((my_int.bit_length() + 7) // 8, 'big').decode()
+        output = my_str
     # --------------------------------
 
     return output
