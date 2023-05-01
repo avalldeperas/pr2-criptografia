@@ -191,9 +191,7 @@ def uoc_aes(message, key):
 
     hex_cipher = bytes_hex_cipher.hex()
     binary = bin(int(hex_cipher, 16))
-    cipher_text = binary[2:]
-    if len(cipher_text) < 128:
-        cipher_text = cipher_text.zfill(128)
+    cipher_text = binary[2:].zfill(128)
     # --------------------------------
 
     return cipher_text
@@ -247,23 +245,25 @@ def uoc_mmo_hash(message):
     h_i = ""
 
     # --- IMPLEMENTATION GOES HERE ---
-    h0 = bin(int("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", 16))[2:].zfill(8)
-    extended_h0 = uoc_g(h0)
-    bin_result = ''.join(format(x, '08b') for x in bytearray(message, 'utf-8'))
-    split_message = split(bin_result, MESSAGE_CHUNKS_SIZE)
+    hash = bin(int("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", 16))[2:].zfill(8)
+    binary_message = ''.join(format(x, '08b') for x in bytearray(message, 'utf-8'))
+    split_message = split(binary_message, MESSAGE_CHUNKS_SIZE)
 
     for i in range(len(split_message)):
         i_message = split_message[i]
         if len(i_message) < MESSAGE_CHUNKS_SIZE:
-            i_message = uoc_naive_padding(message, MESSAGE_CHUNKS_SIZE)
-        ciphered = uoc_aes(i_message, extended_h0)
+            my_int = int(i_message, base=2)
+            my_str = my_int.to_bytes((my_int.bit_length() + 7) // 8, 'big').decode()
+            i_message = uoc_naive_padding(my_str, MESSAGE_CHUNKS_SIZE)
+        extended_h = uoc_g(hash)
+        ciphered = uoc_aes(i_message, extended_h)
         output = ""
         for j in range(len(ciphered)):
-            result = xor(int(ciphered[j]), int(h0[j]))
+            result = xor(int(ciphered[j]), int(hash[j]))
             output += str(result)
-        h_i += output
+        hash = output
 
-    print(h_i)
+    h_i = output
     # --------------------------------
 
     return h_i
