@@ -11,6 +11,7 @@ MODE_DECIPHER = 1
 #  Student helpers (functions, constants, etc.) can be defined here, if needed
 MESSAGE_CHUNKS_SIZE = 128
 
+
 def xor(x, y):
     return x ^ y
 
@@ -254,7 +255,7 @@ def uoc_mmo_hash(message):
     for i in range(len(split_message)):
         i_message = split_message[i]
         if len(i_message) < MESSAGE_CHUNKS_SIZE:
-            print('i_message = uoc_naive_padding(i_message, MESSAGE_CHUNKS_SIZE)')
+            i_message = uoc_naive_padding(message, MESSAGE_CHUNKS_SIZE)
         ciphered = uoc_aes(i_message, extended_h0)
         output = ""
         for j in range(len(ciphered)):
