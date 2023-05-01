@@ -9,6 +9,8 @@ MODE_DECIPHER = 1
 
 # --- IMPLEMENTATION GOES HERE ---------------------------------------------
 #  Student helpers (functions, constants, etc.) can be defined here, if needed
+MESSAGE_CHUNKS_SIZE = 128
+
 def xor(x, y):
     return x ^ y
 
@@ -189,6 +191,8 @@ def uoc_aes(message, key):
     hex_cipher = bytes_hex_cipher.hex()
     binary = bin(int(hex_cipher, 16))
     cipher_text = binary[2:]
+    if len(cipher_text) < 128:
+        cipher_text = cipher_text.zfill(128)
     # --------------------------------
 
     return cipher_text
@@ -242,10 +246,30 @@ def uoc_mmo_hash(message):
     h_i = ""
 
     # --- IMPLEMENTATION GOES HERE ---
+    h0 = bin(int("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", 16))[2:].zfill(8)
+    extended_h0 = uoc_g(h0)
+    bin_result = ''.join(format(x, '08b') for x in bytearray(message, 'utf-8'))
+    split_message = split(bin_result, MESSAGE_CHUNKS_SIZE)
 
+    for i in range(len(split_message)):
+        i_message = split_message[i]
+        if len(i_message) < MESSAGE_CHUNKS_SIZE:
+            print('i_message = uoc_naive_padding(i_message, MESSAGE_CHUNKS_SIZE)')
+        ciphered = uoc_aes(i_message, extended_h0)
+        output = ""
+        for j in range(len(ciphered)):
+            result = xor(int(ciphered[j]), int(h0[j]))
+            output += str(result)
+        h_i += output
+
+    print(h_i)
     # --------------------------------
 
     return h_i
+
+
+def split(str_num, chunks=128):
+    return [str_num[y - chunks:y] for y in range(chunks, len(str_num) + chunks, chunks)]
 
 
 def uoc_collision(prefix):
