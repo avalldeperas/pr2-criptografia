@@ -12,6 +12,10 @@ MODE_DECIPHER = 1
 MESSAGE_CHUNKS_SIZE = 128
 
 
+def split(str_num, chunks=128):
+    return [str_num[y - chunks:y] for y in range(chunks, len(str_num) + chunks, chunks)]
+
+
 def xor(x, y):
     return x ^ y
 
@@ -57,9 +61,11 @@ def uoc_lfsr_sequence(polynomial, initial_state, output_bits):
 
     # --- IMPLEMENTATION GOES HERE ---
     result = []
+    # we reverse the given arrays to work like in the module 3 notes
     initial_state.reverse()
     polynomial.reverse()
     lfsr = initial_state.copy()
+    # each iteration appends last element to the result, rotating the lfsr as expected.
     for i in range(output_bits):
         result.append(lfsr[-1])
         rotate(lfsr, polynomial)
@@ -69,6 +75,7 @@ def uoc_lfsr_sequence(polynomial, initial_state, output_bits):
 
 
 def validate_clocking_bits(clocking_bit, *param_pols):
+    # we validate that all param_pols have expected clocking bits
     for i in range(len(clocking_bit)):
         current_param = param_pols[i]
         polynomial = current_param[0]
@@ -99,16 +106,19 @@ def uoc_ext_a5_pseudo_random_gen(params_pol_0, params_pol_1, params_pol_2, clock
     lfsr_2 = uoc_lfsr_sequence(params_pol_1[0], params_pol_1[1], len(params_pol_1[1]))
     lfsr_3 = uoc_lfsr_sequence(params_pol_2[0], params_pol_2[1], len(params_pol_2[1]))
 
+    # we reverse the given arrays to work like in the module 3 notes
     lfsr_1.reverse()
     lfsr_2.reverse()
     lfsr_3.reverse()
     for i in range(output_bits):
+        #  we apply xor between the last 3 elements of the LFSRs
         output = xor(xor(lfsr_1[-1], lfsr_2[-1]), lfsr_3[-1])
         sequence.append(output)
         clock_bit_val1 = lfsr_1[clocking_bits[0]]
         clock_bit_val2 = lfsr_2[clocking_bits[1]]
         clock_bit_val3 = lfsr_3[clocking_bits[2]]
 
+        #  We only rotate the LFSRs if they are in majority.
         if clock_bit_val1 == clock_bit_val2 == clock_bit_val3:
             rotate(lfsr_1, params_pol_0[0])
             rotate(lfsr_2, params_pol_1[0])
@@ -147,22 +157,30 @@ def uoc_a5_cipher(initial_state_0, initial_state_1, initial_state_2, message, mo
     params_pol_2 = [[1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0], initial_state_2]
     clocking_bits = [8, 10, 10]
 
+    # Cipher mode (0) - we receive plain text
     if MODE_CIPHER == mode:
+        # we parse the ascii message to binary and map it to a list like function expects
         bin_result = ''.join(format(x, '08b') for x in bytearray(message, 'utf-8'))
         message_list = list(map(int, bin_result))
+        # we generate a new key with dynamic length
         key = uoc_ext_a5_pseudo_random_gen(params_pol_0, params_pol_1, params_pol_2, clocking_bits, len(message_list))
+        # finally we apply xor between each element on generated key and the message bits. then append the result.
         for i in range(len(message_list)):
             result = xor(message_list[i], key[i])
             output += str(result)
 
+    # Decipher mode (1) - we receive binary str
     elif MODE_DECIPHER == mode:
+        # we first parse it as a list like function expects
         message_list = list(map(int, message))
+        # we generate a new key with dynamic length
         key = uoc_ext_a5_pseudo_random_gen(params_pol_0, params_pol_1, params_pol_2, clocking_bits, len(message_list))
         binary_str_result = ''
+        # finally we apply xor between each element on generated key and the message bits. then append the result.
         for i in range(len(message_list)):
             result = xor(message_list[i], key[i])
             binary_str_result += str(result)
-
+        # for decipher only, we cast binary result to ascii text like test expects.
         my_int = int(binary_str_result, base=2)
         my_str = my_int.to_bytes((my_int.bit_length() + 7) // 8, 'big').decode()
         output = my_str
@@ -183,12 +201,16 @@ def uoc_aes(message, key):
     cipher_text = ""
 
     # --- IMPLEMENTATION GOES HERE ---
+    # we cast the binary str key given to bytes (hex) as AES initialisation expects, with ECB mode.
     bytes_hex_key = binary_str_to_bytes(key)
     cipher = AES.new(bytes_hex_key, AES.MODE_ECB)
 
+    # we cast the binary str message given to bytes as encrypt function expects
     bytes_hex_message = binary_str_to_bytes(message)
+    # we encrypt the given message. the output is in bytes (hex)
     bytes_hex_cipher = cipher.encrypt(bytes_hex_message)
 
+    # we cast the result to binary like test expects and fill with 0 to cover leading 0 if needed.
     hex_cipher = bytes_hex_cipher.hex()
     binary = bin(int(hex_cipher, 16))
     cipher_text = binary[2:].zfill(128)
@@ -208,6 +230,7 @@ def uoc_g(message):
     output = ""
 
     # --- IMPLEMENTATION GOES HERE ---
+    # we just apply a concatenation
     output = message + message
     # --------------------------------
 
@@ -227,6 +250,7 @@ def uoc_naive_padding(message, block_len):
     output = ""
 
     # --- IMPLEMENTATION GOES HERE ---
+    # we first cast the ascii message to binary and add 0 to the right to match the block length expected
     binary = string_to_binary(message)
     output = binary.ljust(block_len, '0')
     # --------------------------------
@@ -245,19 +269,27 @@ def uoc_mmo_hash(message):
     h_i = ""
 
     # --- IMPLEMENTATION GOES HERE ---
+    # we initialise the lfsr as requested
     hash = bin(int("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", 16))[2:].zfill(8)
+    # we parse the ascii message to binary
     binary_message = ''.join(format(x, '08b') for x in bytearray(message, 'utf-8'))
+    # we split the message in chunks of 128 bits
     split_message = split(binary_message, MESSAGE_CHUNKS_SIZE)
 
+    # for each chunk we apply the crypto-system block logic.
     for i in range(len(split_message)):
         i_message = split_message[i]
+        # if message is smaller than 128, we apply a padding
         if len(i_message) < MESSAGE_CHUNKS_SIZE:
             my_int = int(i_message, base=2)
             my_str = my_int.to_bytes((my_int.bit_length() + 7) // 8, 'big').decode()
             i_message = uoc_naive_padding(my_str, MESSAGE_CHUNKS_SIZE)
+        # we apply g function to concatenate and have a 256-bit hash
         extended_h = uoc_g(hash)
+        # we execute the block cypher function
         ciphered = uoc_aes(i_message, extended_h)
         output = ""
+        # we do the xor between the previous hash and the ciphered result, bit by bit
         for j in range(len(ciphered)):
             result = xor(int(ciphered[j]), int(hash[j]))
             output += str(result)
@@ -269,8 +301,7 @@ def uoc_mmo_hash(message):
     return h_i
 
 
-def split(str_num, chunks=128):
-    return [str_num[y - chunks:y] for y in range(chunks, len(str_num) + chunks, chunks)]
+
 
 
 def uoc_collision(prefix):
